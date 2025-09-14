@@ -1,5 +1,7 @@
 #!/bin/bash
 ### copy_widevine_from_anywhere()
+### Returns: 0 on success (copied), 1 on failure#!/bin/bash
+### copy_widevine_from_anywhere()
 ### Returns: 0 on success (copied), 1 on failure
 copy_widevine_from_anywhere() {
   local OUT_DIR="${1:-/tmp/opera-fix}"
@@ -38,40 +40,6 @@ copy_widevine_from_anywhere() {
     echo "0.0.0.0"
   }
 
-  # Collect candidates from user Firefox + Flatpak profiles
-  for userhome in /home/*; do
-    [[ -d "$userhome" ]] || continue
-    local fx_dir="$userhome/.mozilla/firefox"
-    if [[ -d "$fx_dir" ]]; then
-      while IFS= read -r -d '' so; do
-        local ver
-        ver=$(get_version "$so")
-        if version_ge "$ver" "$min_version"; then
-          if [[ -z "$best_version" ]] || version_ge "$ver" "$best_version"; then
-            best_version="$ver"
-            best_path="$so"
-          fi
-        fi
-      done < <(find "$fx_dir" -type f -name "libwidevinecdm.so" -print0 2>/dev/null)
-    fi
-
-    # Flatpak Firefox per-user
-    for widevine_path in "$userhome/.var/app/org.mozilla.firefox/data/.mozilla/firefox"/*/gmp-widevinecdm/*/; do
-      [[ -d "$widevine_path" ]] || continue
-      local so="${widevine_path}libwidevinecdm.so"
-      if [[ -f "$so" ]]; then
-        local ver
-        ver=$(get_version "$so")
-        if version_ge "$ver" "$min_version"; then
-          if [[ -z "$best_version" ]] || version_ge "$ver" "$best_version"; then
-            best_version="$ver"
-            best_path="$so"
-          fi
-        fi
-      fi
-    done
-  done
-
   # Chrome / Chromium system paths
   local candidates=(
     "/opt/google/chrome/WidevineCdm/*/"
@@ -105,6 +73,40 @@ copy_widevine_from_anywhere() {
     cp -f "$(dirname "$best_path")"/manifest* "$OUT_DIR/" 2>/dev/null || true
     return 0
   fi
+
+  # Collect candidates from user Firefox + Flatpak profiles
+  for userhome in /home/*; do
+    [[ -d "$userhome" ]] || continue
+    local fx_dir="$userhome/.mozilla/firefox"
+    if [[ -d "$fx_dir" ]]; then
+      while IFS= read -r -d '' so; do
+        local ver
+        ver=$(get_version "$so")
+        if version_ge "$ver" "$min_version"; then
+          if [[ -z "$best_version" ]] || version_ge "$ver" "$best_version"; then
+            best_version="$ver"
+            best_path="$so"
+          fi
+        fi
+      done < <(find "$fx_dir" -type f -name "libwidevinecdm.so" -print0 2>/dev/null)
+    fi
+
+    # Flatpak Firefox per-user
+    for widevine_path in "$userhome/.var/app/org.mozilla.firefox/data/.mozilla/firefox"/*/gmp-widevinecdm/*/; do
+      [[ -d "$widevine_path" ]] || continue
+      local so="${widevine_path}libwidevinecdm.so"
+      if [[ -f "$so" ]]; then
+        local ver
+        ver=$(get_version "$so")
+        if version_ge "$ver" "$min_version"; then
+          if [[ -z "$best_version" ]] || version_ge "$ver" "$best_version"; then
+            best_version="$ver"
+            best_path="$so"
+          fi
+        fi
+      fi
+    done
+  done
 
   echo "    No Widevine found meeting minimum version $min_version"
   return 1
