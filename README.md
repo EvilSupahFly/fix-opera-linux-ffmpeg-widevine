@@ -8,22 +8,17 @@
 
 ## Requirements
 
-1. **curl** (Is needed for downloading the ffmpeg lib and widevine)
+1. **curl** (is needed for downloading the ffmpeg lib and widevine)
 
-   **unzip** (Is needed for unpacking the downloaded file)
+   **unzip** (is needed for unpacking the downloaded file)
 
-   **git** (Is needed for fetching this script)
+   **git** (is needed for fetching this script)
 
-   **jq** (Is needed for parsing JSON from github)
+   **jq** (is needed for parsing JSON from github)
 
-	For Debian-based systems: `sudo apt install curl unzip git jq`
+2. (*Optional*) **python3-dnf-plugin-post-transaction-actions** (is needed for autoupdate in RedHat-based systems)
 
-	For Arch-based systems: `sudo pacman -S curl unzip git jq`
-
-	For RedHat-based systems: `sudo dnf install curl unzip git jq`
-	
-3. (*Optional*) **python3-dnf-plugin-post-transaction-actions** (Is needed for autoupdate in RedHat-based systems)
-	`dnf install python3-dnf-plugin-post-transaction-actions`
+    The main installer - `install.sh` - auto-detects your distro and installs the both the appropriate and the optional requirements by itself, if they're missing.
 
 ## Usage
 
